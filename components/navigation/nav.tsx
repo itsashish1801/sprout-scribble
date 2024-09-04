@@ -2,7 +2,7 @@ import { auth } from "@/server/auth";
 
 import Logo from "@/components/navigation/logo";
 import UserBtn from "@/components/navigation/user-button";
-import { Button } from "../ui/button";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { LogIn } from "lucide-react";
 
@@ -14,12 +14,14 @@ export default async function Nav() {
       <nav>
         <ul className="flex items-center justify-between">
           <li>
-            <Logo />
+            <Link href="/">
+              <Logo />
+            </Link>
           </li>
           {!session ? (
             <li>
               <Button asChild>
-                <Link href="/auth/signin" className="gap-1">
+                <Link href="/auth/login" className="gap-1">
                   <LogIn size={16} />
                   <span>Log in</span>
                 </Link>
