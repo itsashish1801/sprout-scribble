@@ -17,8 +17,14 @@ import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useAction } from "next-safe-action/hooks";
+import { emailSignin } from "@/server/actions/email-signin";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 export default function LoginForm() {
+  const [error, setError] = useState("");
+
   const form = useForm({
     resolver: zodResolver(LoginSchema),
     defaultValues: {
@@ -27,8 +33,14 @@ export default function LoginForm() {
     },
   });
 
+  const { execute, status, result } = useAction(emailSignin, {
+    onSuccess(data) {
+      console.log(data);
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    console.log(values);
+    execute(values);
   };
 
   return (
@@ -70,18 +82,24 @@ export default function LoginForm() {
                 <FormControl>
                   <Input {...field} type="password" />
                 </FormControl>
+                <FormDescription />
+                <FormMessage />
                 <Link
                   href="/auth/reset"
                   className="ml-auto inline-block text-sm underline"
                 >
                   Forgot your password?
                 </Link>
-                <FormDescription />
-                <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full mt-2">
+          <Button
+            type="submit"
+            className={cn(
+              "w-full mt-2",
+              status === "executing" ? "animate-pulse" : ""
+            )}
+          >
             Login
           </Button>
         </form>
