@@ -4,6 +4,7 @@ import "./globals.css";
 
 // components
 import Nav from "@/components/navigation/nav";
+import clsx from "clsx";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={clsx(`${inter.className}`, "antialiased")}>
         <Nav />
         {children}
       </body>
