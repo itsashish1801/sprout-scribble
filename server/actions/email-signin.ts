@@ -1,12 +1,11 @@
 "use server";
 
 import { LoginSchema } from "@/types/loginSchema";
-import { createSafeActionClient } from "next-safe-action";
+
 import { db } from "@/server";
 import { eq } from "drizzle-orm";
 import { users } from "@/server/schema";
-
-const actionClient = createSafeActionClient();
+import { actionClient } from "@/server/actions/safe-action";
 
 export const emailSignin = actionClient
   .schema(LoginSchema)

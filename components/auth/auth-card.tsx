@@ -28,7 +28,7 @@ export default function AuthCard({
   showSocials = true,
 }: AuthCardProps) {
   return (
-    <Card className="mx-auto max-w-sm">
+    <Card className="mx-auto max-w-md">
       <CardHeader>
         <CardTitle className="text-2xl">{cardTitle}</CardTitle>
         <CardDescription>{cardDescription}</CardDescription>

@@ -15,6 +15,20 @@
       "when": 1725450243309,
       "tag": "0001_outstanding_the_enforcers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725529535366,
+      "tag": "0002_hesitant_deadpool",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1725529972518,
+      "tag": "0003_mixed_bishop",
+      "breakpoints": true
     }
   ]
 }
