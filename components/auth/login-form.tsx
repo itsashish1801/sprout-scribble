@@ -21,9 +21,12 @@ import { useAction } from "next-safe-action/hooks";
 import { emailSignin } from "@/server/actions/email-signin";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import FormSuccess from "@/components/auth/form-success";
+import FormError from "@/components/auth/form-error";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -34,8 +37,9 @@ export default function LoginForm() {
   });
 
   const { execute, status, result } = useAction(emailSignin, {
-    onSuccess(data) {
-      console.log(data);
+    onSuccess({ data }) {
+      if (data?.success) setSuccess(data.success);
+      if (data?.error) setError(data.error);
     },
   });
 
@@ -93,6 +97,10 @@ export default function LoginForm() {
               </FormItem>
             )}
           />
+
+          <FormSuccess message={success} />
+          <FormError message={error} />
+
           <Button
             type="submit"
             className={cn(
