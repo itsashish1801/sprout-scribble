@@ -5,7 +5,7 @@ import { db } from "@/server";
 import { eq } from "drizzle-orm";
 import { users } from "@/server/schema";
 import { actionClient } from "@/server/actions/safe-action";
-import { RegisterSchema } from "@/types/registerSchema";
+import { RegisterSchema } from "@/types/register-schema";
 import { generateVerificationToken } from "@/server/actions/tokens";
 import { sendVerificationEmail } from "@/server/actions/email";
 

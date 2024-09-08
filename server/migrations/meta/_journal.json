@@ -29,6 +29,13 @@
       "when": 1725529972518,
       "tag": "0003_mixed_bishop",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1725607406763,
+      "tag": "0004_worthless_obadiah_stane",
+      "breakpoints": true
     }
   ]
 }

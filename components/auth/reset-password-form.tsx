@@ -12,48 +12,51 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@/types/login-schema";
+
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+
 import { useAction } from "next-safe-action/hooks";
-import { emailSignin } from "@/server/actions/email-signin";
+
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import FormSuccess from "@/components/auth/form-success";
 import FormError from "@/components/auth/form-error";
+import { newPassword } from "@/server/actions/new-password";
+import { ResetPasswordSchema } from "@/types/reset-password-schema";
+import { resetPassword } from "@/server/actions/reset-password";
 
-export default function LoginForm() {
+export default function ResetPasswordForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof ResetPasswordSchema>>({
+    resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const { execute, status, result } = useAction(emailSignin, {
+  const { execute, status, result } = useAction(resetPassword, {
     onSuccess({ data }) {
       if (data?.success) setSuccess(data.success);
       if (data?.error) setError(data.error);
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (values: z.infer<typeof ResetPasswordSchema>) => {
     execute(values);
   };
 
   return (
     <AuthCard
-      cardTitle="Login"
-      cardDescription="Enter your email below to login to your account"
-      backButtonHref="/auth/register"
-      backButtonText="Don't have an account?"
-      backButtonLabel="Sign up"
+      cardTitle="Forgot Password"
+      cardDescription="Enter your email to reset your password"
+      backButtonHref="/auth/login"
+      backButtonText="Back to"
+      backButtonLabel="Login"
+      showSocials={false}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -66,7 +69,7 @@ export default function LoginForm() {
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder="some@email.com"
+                    placeholder="somename@email.com"
                     type="email"
                     autoComplete="email"
                   />
@@ -77,38 +80,18 @@ export default function LoginForm() {
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input {...field} type="password" />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-                <Link
-                  href="/auth/reset-password"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
-              </FormItem>
-            )}
-          />
-
           <FormSuccess message={success} />
           <FormError message={error} />
 
           <Button
             type="submit"
+            disabled={status === "executing"}
             className={cn(
               "w-full mt-2",
               status === "executing" ? "animate-pulse" : ""
             )}
           >
-            Login
+            Submit
           </Button>
         </form>
       </Form>

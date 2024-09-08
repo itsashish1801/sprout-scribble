@@ -1,6 +1,6 @@
 "use server";
 
-import { LoginSchema } from "@/types/loginSchema";
+import { LoginSchema } from "@/types/login-schema";
 
 import { db } from "@/server";
 import { eq } from "drizzle-orm";

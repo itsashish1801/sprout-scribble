@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoginSchema } from "@/types/login-schema";
+import { NewPasswordSchema } from "@/types/new-password-schema";
 import * as z from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -23,77 +23,56 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import FormSuccess from "@/components/auth/form-success";
 import FormError from "@/components/auth/form-error";
+import { newPassword } from "@/server/actions/new-password";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginForm() {
+export default function NewPasswordForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+
+  const form = useForm<z.infer<typeof NewPasswordSchema>>({
+    resolver: zodResolver(NewPasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
     },
   });
 
-  const { execute, status, result } = useAction(emailSignin, {
+  const { execute, status, result } = useAction(newPassword, {
     onSuccess({ data }) {
       if (data?.success) setSuccess(data.success);
       if (data?.error) setError(data.error);
     },
   });
 
-  const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-    execute(values);
+  const onSubmit = (values: z.infer<typeof NewPasswordSchema>) => {
+    execute({ password: values.password, token });
   };
 
   return (
     <AuthCard
-      cardTitle="Login"
-      cardDescription="Enter your email below to login to your account"
-      backButtonHref="/auth/register"
-      backButtonText="Don't have an account?"
-      backButtonLabel="Sign up"
+      cardTitle="Password Reset"
+      cardDescription="Enter your new password"
+      backButtonHref="/auth/login"
+      backButtonText="Back to"
+      backButtonLabel="Login"
+      showSocials={false}
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <FormField
             control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="some@email.com"
-                    type="email"
-                    autoComplete="email"
-                  />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
             name="password"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Password</FormLabel>
+                <FormLabel>New Password</FormLabel>
                 <FormControl>
                   <Input {...field} type="password" />
                 </FormControl>
                 <FormDescription />
                 <FormMessage />
-                <Link
-                  href="/auth/reset-password"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
               </FormItem>
             )}
           />
@@ -108,7 +87,7 @@ export default function LoginForm() {
               status === "executing" ? "animate-pulse" : ""
             )}
           >
-            Login
+            Submit
           </Button>
         </form>
       </Form>
