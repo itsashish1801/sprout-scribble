@@ -10,7 +10,7 @@ export default async function Nav() {
   const session = await auth();
 
   return (
-    <header className="bg-zinc-100 py-4 px-4 md:px-8 lg:px-16">
+    <header className="bg-zinc-100 dark:bg-zinc-800 py-4 px-4 md:px-8 lg:px-20">
       <nav>
         <ul className="flex items-center justify-between">
           <li>
@@ -28,7 +28,7 @@ export default async function Nav() {
               </Button>
             </li>
           ) : (
-            <li>
+            <li className="inline-flex">
               <UserBtn expires={session?.expires} user={session?.user} />
             </li>
           )}
