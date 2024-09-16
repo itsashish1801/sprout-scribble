@@ -99,7 +99,7 @@ export default function SettingsCard({ session }: { session: Session }) {
                   <FormLabel>Avatar</FormLabel>
                   <div className="flex">
                     {!form.getValues("image") ? (
-                      <div className="font-semibold">
+                      <div className="font-semibold w-[42px] h-[42px] bg-rose-100 rounded-full inline-flex items-center justify-center text-rose-800 text-sm">
                         {session.user?.name?.charAt(0).toUpperCase()}
                       </div>
                     ) : (
@@ -168,6 +168,8 @@ export default function SettingsCard({ session }: { session: Session }) {
                   </FormDescription>
                   <FormControl>
                     <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
                       disabled={status === "executing" || session.user.isOAuth}
                     />
                   </FormControl>

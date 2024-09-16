@@ -4,10 +4,17 @@ import { LoginSchema } from "@/types/login-schema";
 
 import { db } from "@/server";
 import { eq } from "drizzle-orm";
-import { users } from "@/server/schema";
+import { twoFactorTokens, users } from "@/server/schema";
 import { actionClient } from "@/server/actions/safe-action";
-import { generateVerificationToken } from "@/server/actions/tokens";
-import { sendVerificationEmail } from "@/server/actions/email";
+import {
+  generateTwoFactorToken,
+  generateVerificationToken,
+  getTwoFactorTokenByEmail,
+} from "@/server/actions/tokens";
+import {
+  sendTwoFactorToken,
+  sendVerificationEmail,
+} from "@/server/actions/email";
 import { signIn } from "@/server/auth";
 import { AuthError } from "next-auth";
 
@@ -32,6 +39,42 @@ export const emailSignin = actionClient
           verificationToken[0].token
         );
         return { success: "Email confirmation sent" };
+      }
+
+      if (existingUser.twoFactorEnabled && existingUser.email) {
+        if (code) {
+          const twoFactorToken = await getTwoFactorTokenByEmail(
+            existingUser.email
+          );
+
+          if (!twoFactorToken) {
+            return { error: "No token" };
+          }
+          if (twoFactorToken.token !== code) {
+            return { error: "Invalid token" };
+          }
+          if (new Date(twoFactorToken.expires) < new Date()) {
+            return { error: "Token expired" };
+          }
+          await db
+            .delete(twoFactorTokens)
+            .where(eq(twoFactorTokens.id, twoFactorToken.id));
+        } else {
+          const newTwoFactorToken = await generateTwoFactorToken(
+            existingUser.email,
+            existingUser.id
+          );
+
+          if (!newTwoFactorToken) {
+            return { error: "Token not generated" };
+          }
+
+          await sendTwoFactorToken(
+            newTwoFactorToken[0].email,
+            newTwoFactorToken[0].token
+          );
+          return { twoFactor: "Two factor token sent" };
+        }
       }
 
       await signIn("credentials", { email, password, redirectTo: "/" });

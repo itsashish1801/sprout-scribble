@@ -4,9 +4,11 @@ import { db } from "@/server";
 import { eq } from "drizzle-orm";
 import {
   passwordResetTokens,
+  twoFactorTokens,
   users,
   verificationTokens,
 } from "@/server/schema";
+import crypto from "crypto";
 
 export const getVerficationTokenByEmail = async (email: string) => {
   try {
@@ -103,6 +105,28 @@ export const getPasswordResetTokenByEmail = async (email: string) => {
   }
 };
 
+export const getTwoFactorTokenByEmail = async (email: string) => {
+  try {
+    const twoFactorToken = await db.query.twoFactorTokens.findFirst({
+      where: eq(twoFactorTokens.email, email),
+    });
+    return twoFactorToken;
+  } catch (error) {
+    return null;
+  }
+};
+
+export const getTwoFactorTokenByToken = async (token: string) => {
+  try {
+    const twoFactorToken = await db.query.twoFactorTokens.findFirst({
+      where: eq(twoFactorTokens.token, token),
+    });
+    return twoFactorToken;
+  } catch (error) {
+    return null;
+  }
+};
+
 export const generatePasswordResetToken = async (email: string) => {
   const token = crypto.randomUUID();
   const expires = new Date(new Date().getTime() + 3600 * 1000);
@@ -125,4 +149,29 @@ export const generatePasswordResetToken = async (email: string) => {
     .returning();
 
   return passwordResetToken;
+};
+
+export const generateTwoFactorToken = async (email: string, userId: string) => {
+  const token = crypto.randomInt(100_000, 1_000_000).toString();
+  const expires = new Date(new Date().getTime() + 3600 * 1000);
+
+  const existingToken = await getTwoFactorTokenByEmail(email);
+
+  if (existingToken) {
+    await db
+      .delete(twoFactorTokens)
+      .where(eq(twoFactorTokens.id, existingToken.id));
+  }
+
+  const twoFactorToken = await db
+    .insert(twoFactorTokens)
+    .values({
+      token,
+      expires,
+      email,
+      userId,
+    })
+    .returning();
+
+  return twoFactorToken;
 };

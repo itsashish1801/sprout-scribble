@@ -23,10 +23,18 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import FormSuccess from "@/components/auth/form-success";
 import FormError from "@/components/auth/form-error";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSeparator,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { stat } from "fs/promises";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showTwoFactor, setShowTwoFactor] = useState(false);
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -40,6 +48,7 @@ export default function LoginForm() {
     onSuccess({ data }) {
       if (data?.success) setSuccess(data.success);
       if (data?.error) setError(data.error);
+      if (data?.twoFactor) setShowTwoFactor(true);
     },
   });
 
@@ -57,46 +66,85 @@ export default function LoginForm() {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    placeholder="some@email.com"
-                    type="email"
-                    autoComplete="email"
-                  />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {showTwoFactor && (
+            <FormField
+              control={form.control}
+              name="code"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    We have sent a two factor code to your email
+                  </FormLabel>
+                  <FormControl>
+                    <InputOTP
+                      maxLength={6}
+                      disabled={status === "executing"}
+                      {...field}
+                    >
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                      </InputOTPGroup>
+                      <InputOTPSeparator />
+                      <InputOTPGroup>
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </FormControl>
+                  <FormDescription />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
 
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input {...field} type="password" />
-                </FormControl>
-                <FormDescription />
-                <FormMessage />
-                <Link
-                  href="/auth/reset-password"
-                  className="ml-auto inline-block text-sm underline"
-                >
-                  Forgot your password?
-                </Link>
-              </FormItem>
-            )}
-          />
+          {!showTwoFactor && (
+            <>
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="some@email.com"
+                        type="email"
+                        autoComplete="email"
+                      />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" />
+                    </FormControl>
+                    <FormDescription />
+                    <FormMessage />
+                    <Link
+                      href="/auth/reset-password"
+                      className="ml-auto inline-block text-sm underline"
+                    >
+                      Forgot your password?
+                    </Link>
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
 
           <FormSuccess message={success} />
           <FormError message={error} />
@@ -108,7 +156,7 @@ export default function LoginForm() {
               status === "executing" ? "animate-pulse" : ""
             )}
           >
-            Login
+            {showTwoFactor ? "Verify" : "Sign in"}
           </Button>
         </form>
       </Form>
