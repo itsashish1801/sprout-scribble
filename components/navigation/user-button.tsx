@@ -17,9 +17,12 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
 
 export default function UserIcon({ user }: Session) {
   const { setTheme, theme } = useTheme();
+
+  const router = useRouter();
 
   return (
     <DropdownMenu>
@@ -42,10 +45,16 @@ export default function UserIcon({ user }: Session) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator className="my-2" />
         <DropdownMenuGroup className="font-medium">
-          <DropdownMenuItem className="inline-flex items-center gap-2 w-full">
+          <DropdownMenuItem
+            onClick={() => router.push("/dashboard/orders")}
+            className="inline-flex items-center gap-2 w-full"
+          >
             <Truck size={16} /> My Orders
           </DropdownMenuItem>
-          <DropdownMenuItem className="inline-flex items-center gap-2 w-full">
+          <DropdownMenuItem
+            onClick={() => router.push("/dashboard/settings")}
+            className="inline-flex items-center gap-2 w-full"
+          >
             <Settings size={16} /> Settings
           </DropdownMenuItem>
           <DropdownMenuItem className="inline-flex items-center gap-2 w-full">
