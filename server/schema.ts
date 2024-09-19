@@ -6,6 +6,7 @@ import {
   integer,
   boolean,
   pgEnum,
+  serial,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "next-auth/adapters";
 
@@ -101,3 +102,11 @@ export const twoFactorTokens = pgTable(
     }),
   })
 );
+
+export const Products = pgTable("product", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  price: integer("price").notNull(),
+  created: timestamp("created").defaultNow(),
+});

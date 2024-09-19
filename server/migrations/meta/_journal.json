@@ -43,6 +43,13 @@
       "when": 1726477761409,
       "tag": "0005_charming_stature",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1726734094637,
+      "tag": "0006_fixed_lily_hollister",
+      "breakpoints": true
     }
   ]
 }
