@@ -9,7 +9,7 @@ export default async function SettingsPage() {
   if (!session) return redirect("/auth/login");
 
   return (
-    <Container className="mt-12 md:mt-16">
+    <Container className="mt-6 md:mt-8">
       <SettingsCard session={session} />
     </Container>
   );
