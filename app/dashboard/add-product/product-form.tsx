@@ -25,6 +25,10 @@ import { Button } from "@/components/ui/button";
 import { IndianRupee } from "lucide-react";
 import Tiptap from "./tip-tap";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "next-safe-action/hooks";
+import { createProduct } from "@/server/actions/create-product";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function ProductForm() {
   const form = useForm<z.infer<typeof ProductSchema>>({
@@ -36,8 +40,27 @@ export default function ProductForm() {
     },
   });
 
+  const router = useRouter();
+
+  const { execute, status } = useAction(createProduct, {
+    onSuccess: ({ data }) => {
+      if (data?.success) {
+        toast.success(data.success);
+        router.push("/dashboard/products");
+      }
+
+      if (data?.error) {
+        toast.error(data.error);
+      }
+    },
+
+    onExecute: () => {
+      toast.loading("Creating product...");
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof ProductSchema>) => {
-    console.log(values);
+    execute(values);
   };
 
   return (
@@ -102,7 +125,9 @@ export default function ProductForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit">Create</Button>
+            <Button disabled={status === "executing"} type="submit">
+              Create
+            </Button>
           </form>
         </Form>
       </CardContent>
