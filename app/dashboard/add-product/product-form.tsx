@@ -27,8 +27,10 @@ import Tiptap from "./tip-tap";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
 import { createProduct } from "@/server/actions/create-product";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { getProduct } from "@/server/actions/get-product";
+import { useCallback, useEffect } from "react";
 
 export default function ProductForm() {
   const form = useForm<z.infer<typeof ProductSchema>>({
@@ -41,6 +43,40 @@ export default function ProductForm() {
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get("id");
+
+  const checkProductExists = async (id: number) => {
+    if (editId) {
+      const { success: product, error } = await getProduct(id);
+
+      if (error) {
+        toast.error(error);
+        router.push("/dashboard/products");
+        return;
+      }
+
+      if (product) {
+        const id = parseInt(editId);
+        form.setValue("id", id);
+        form.setValue("title", product.title);
+        form.setValue("description", product.description);
+        form.setValue("price", product.price);
+      }
+    }
+  };
+
+  const cachedProductExists = useCallback(checkProductExists, [
+    form,
+    router,
+    editId,
+  ]);
+
+  useEffect(() => {
+    if (editId) {
+      cachedProductExists(parseInt(editId));
+    }
+  }, [cachedProductExists, editId]);
 
   const { execute, status } = useAction(createProduct, {
     onSuccess: ({ data }) => {
@@ -55,7 +91,11 @@ export default function ProductForm() {
     },
 
     onExecute: () => {
-      toast.loading("Creating product...");
+      if (editId) {
+        toast.loading("Updating product...");
+      } else {
+        toast.loading("Creating product...");
+      }
     },
   });
 
@@ -66,8 +106,10 @@ export default function ProductForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create a product</CardTitle>
-        <CardDescription>Add a new product to your store</CardDescription>
+        <CardTitle>{editId ? "Edit" : "Create"} a product</CardTitle>
+        <CardDescription>
+          {editId ? "Update your product" : "Add a new product"}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -126,7 +168,7 @@ export default function ProductForm() {
               )}
             />
             <Button disabled={status === "executing"} type="submit">
-              Create
+              {editId ? "Update" : "Create"}
             </Button>
           </form>
         </Form>
