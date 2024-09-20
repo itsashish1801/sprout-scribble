@@ -1,0 +1,1 @@
+ALTER TABLE "variantImage" ALTER COLUMN "order" SET DATA TYPE real;
